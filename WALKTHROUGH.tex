@@ -1,1 +1,180 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+\geometry{margin=1in}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{amsmath}
+\usepackage{enumitem}
+\usepackage{tocloft}
 
+\title{\textbf{PORT-HUB.COM} \\ Universal Adaptive Port Hub}
+\author{Atrographer}
+\date{\today}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},  
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,        
+    breaklines=true,                
+    captionpos=b,                   
+    keepspaces=true,                
+    numbers=left,                   
+    numbersep=5pt,                 
+    showspaces=false,               
+    showstringspaces=false,
+    showtabs=false,                 
+    tabsize=2
+}
+
+\lstset{style=mystyle}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+
+\begin{abstract}
+PORT-HUB.COM is a port/adapter system. It discovers, types, registers, and interconnects components in a project — turning Python objects, modules, and project files (Vite + React + Render.com stacks) into ports with connections.
+\end{abstract}
+
+\section{Quick Start}
+
+\begin{lstlisting}[language=Python]
+from port_type_hub import PortHub
+
+PortHub.auto_discover()
+
+PortHub.auto_hub_files(".")
+
+PortHub.status()
+\end{lstlisting}
+
+\section{Core Thesis}
+
+PORT-HUB turns project artifacts into a graph of typed ports. It bridges frontend files (JSX/TSX files, configs) with Python orchestration through:
+
+\begin{itemize}
+    \item Port: Any object, module, or file (via FilePortWrapper).
+    \item PortType: Typing system (vite:config, react:component, render:service).
+    \item Dynamic Connection: Runtime method injection so ports connect.
+    \item Auto-Discovery + Auto-Connect: For web stacks.
+\end{itemize}
+
+\section{auto\_hub\_files()}
+
+\begin{lstlisting}[language=Python]
+PortHub.auto_hub_files(
+    root_dir=".",
+    extensions=None,
+    max_depth=10
+)
+\end{lstlisting}
+
+\subsection{What It Does}
+\begin{enumerate}
+    \item Scans the project directory.
+    \item Skips node\_modules, \_\_pycache\_\_, .git, etc.
+    \item Registers files as FilePortWrapper objects (with .read(), path metadata).
+    \item Applies type inference from default\_port\_types.py.
+    \item Calls \_auto\_connect\_compatible() to wire ports.
+\end{enumerate}
+
+\subsection{Supported Types}
+
+\begin{itemize}
+    \item vite.config.js/ts \( \longrightarrow \) vite:config
+    \item *.jsx / *.tsx \( \longrightarrow \) react:component
+    \item Files with render, deploy \( \longrightarrow \) render:service
+    \item *.vue / *.svelte \( \longrightarrow \) framework components
+    \item index.html \( \longrightarrow \) web:static
+    \item Python files \( \longrightarrow \) python:module
+\end{itemize}
+
+\section{Dynamic Connections}
+
+After auto-hubbing, ports connect:
+
+\begin{lstlisting}[language=Python]
+for v in vite_ports:
+    for r in react_ports:
+        PortHub.connect(v, r, bidirectional=True)
+    for ren in render_ports:
+        PortHub.connect(v, ren, bidirectional=True)
+\end{lstlisting}
+
+connect() injects proxy methods:
+
+- vite\_port.to\_react-component\_build()
+- react\_port.to\_render-service\_deploy()
+
+\section{Example in a Vite + React Project}
+
+\begin{lstlisting}[language=Python]
+from port_type_hub import PortHub
+
+def main():
+    hub = PortHub()
+   
+    hub.auto_hub_files(".")
+   
+    vite_config = hub.get_port_by_type("vite:config")
+    react_components = hub.get_ports_by_type("react:component")
+   
+    hub.status()
+   
+if __name__ == "__main__":
+    main()
+\end{lstlisting}
+
+\section{Advanced Usage}
+
+\begin{itemize}
+    \item Manual registration: PortHub.register\_port(name, obj, port\_type)
+    \item Custom filters with ModFilter
+    \item Extend types in default\_port\_types.py
+    \item Use in build scripts and orchestration
+\end{itemize}
+
+\section{Project Structure}
+
+Typical Vite + React + Render project:
+
+\begin{verbatim}
+my-vite-react-app/
+├── index.html
+├── package.json
+├── vite.config.js / .ts
+├── tsconfig.json
+├── postcss.config.js
+├── tailwind.config.js
+├── .env
+├── public/
+│   └── vite.svg
+└── src/
+    ├── main.tsx
+    ├── App.tsx
+    ├── components/
+    ├── pages/
+    ├── assets/
+    ├── utils/
+    ├── hooks/
+    └── styles/
+\end{verbatim}
+
+\section{Usage}
+
+After using Port Hub the project components are connected.
+
+\end{document} 
